@@ -1579,6 +1579,10 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 }
 
 func checkListMatch(attributes map[string]string, attr string, gcpList []string) string {
+	if attributes[attr+".#"] == "" {
+		attributes[attr+".#"] = "0"
+	}
+
 	num, err := strconv.Atoi(attributes[attr+".#"])
 	if err != nil {
 		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
@@ -1597,6 +1601,10 @@ func checkListMatch(attributes map[string]string, attr string, gcpList []string)
 }
 
 func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]string) string {
+	if attributes[attr+".%"] == "" {
+		attributes[attr+".%"] = "0"
+	}
+
 	num, err := strconv.Atoi(attributes[attr+".%"])
 	if err != nil {
 		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
