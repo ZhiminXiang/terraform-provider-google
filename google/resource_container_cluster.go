@@ -1359,7 +1359,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("ip_allocation_policy", flattenIPAllocationPolicy(cluster, d, config)); err != nil {
+	ipAllocPolicy, err := flattenIPAllocationPolicy(cluster, d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("ip_allocation_policy", ipAllocPolicy); err != nil {
 		return err
 	}
 
@@ -2715,10 +2719,10 @@ func flattenWorkloadIdentityConfig(c *containerBeta.WorkloadIdentityConfig) []ma
 	}
 }
 
-func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData, config *Config) []map[string]interface{} {
+func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData, config *Config) ([]map[string]interface{}, error) {
 	// If IP aliasing isn't enabled, none of the values in this block can be set.
 	if c == nil || c.IpAllocationPolicy == nil || !c.IpAllocationPolicy.UseIpAliases {
-		return nil
+		return nil, nil
 	}
 
 	p := c.IpAllocationPolicy
@@ -2729,7 +2733,7 @@ func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData,
 			"cluster_secondary_range_name":  p.ClusterSecondaryRangeName,
 			"services_secondary_range_name": p.ServicesSecondaryRangeName,
 		},
-	}
+	}, nil
 }
 
 func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]interface{} {
